@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
 func main() {
-	url := "http://192.168.8.1/rpc"
+	url := "http://127.0.0.1/rpc"
 	jsonData := []byte(`{"jsonrpc":"2.0","id":1,"method":"call","params":["","system","get_status"]}`)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -28,7 +28,7 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		return
@@ -39,6 +39,8 @@ func main() {
 		fmt.Println("Error parsing JSON:", err)
 		return
 	}
+
+	// add a check if the response code was in the range of 2xx (successful) or if the response was >299 which means there was an error like 404 (not found) or 403 (not allowed). AI!
 
 	fmt.Println("Response:", result)
 }
