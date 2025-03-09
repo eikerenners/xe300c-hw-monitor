@@ -1,4 +1,4 @@
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::{header::{HeaderMap, HeaderValue}, Response};
 use serde_json::Value;
 use std::error::Error;
 
@@ -14,7 +14,7 @@ async fn fetch_data() -> Result<Value, Box<dyn Error>> {
         .send()
         .await?;
 
-    let json: Value = res.json().await?; // this line contains the error "no method named `json` found for struct `Response` in the current scope method not found in `Response`". Fix it, AI!
+    let json: Value = res.json().await?;
     Ok(json)
 }
 
