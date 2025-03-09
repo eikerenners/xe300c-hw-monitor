@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	url := "http://127.0.0.1/rpc"
+	url := "http://192.168.8.1/rpc"
+	//url := "http://127.0.0.1/rpc"
 	jsonData := []byte(`{"jsonrpc":"2.0","id":1,"method":"call","params":["","system","get_status"]}`)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -41,10 +42,12 @@ func main() {
 	}
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		fmt.Println("Request was successful.")
+		fmt.Printf("Request was successful: %d\n", resp.StatusCode)
 	} else {
 		fmt.Printf("Request failed with status code: %d\n", resp.StatusCode)
 	}
+
+	// add a check for the "code" field inside the returned json object. If it's equal to -32000 pring "access denied" otherwise print the entire object. AI!
 
 	fmt.Println("Response:", result)
 }
