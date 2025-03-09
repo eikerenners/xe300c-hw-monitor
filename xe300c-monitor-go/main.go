@@ -40,7 +40,11 @@ func main() {
 		return
 	}
 
-	// add a check if the response code was in the range of 2xx (successful) or if the response was >299 which means there was an error like 404 (not found) or 403 (not allowed). AI!
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		fmt.Println("Request was successful.")
+	} else {
+		fmt.Printf("Request failed with status code: %d\n", resp.StatusCode)
+	}
 
 	fmt.Println("Response:", result)
 }
