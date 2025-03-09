@@ -47,7 +47,9 @@ func main() {
 		fmt.Printf("Request failed with status code: %d\n", resp.StatusCode)
 	}
 
-	// add a check for the "code" field inside the returned json object. If it's equal to -32000 pring "access denied" otherwise print the entire object. AI!
-
-	fmt.Println("Response:", result)
+	if code, exists := result["error"].(map[string]interface{})["code"]; exists && code == -32000 {
+		fmt.Println("Access denied")
+	} else {
+		fmt.Println("Response:", result)
+	}
 }
