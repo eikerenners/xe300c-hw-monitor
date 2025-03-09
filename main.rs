@@ -1,27 +1,7 @@
-use reqwest::header::{HeaderMap, HeaderValue};
-use serde_json::Value;
-use std::error::Error;
+// Write a simple rust function that makes http get calls to localhost, similar to this shell command "curl -k http://127.0.0.1/rpc -H 'glinet: 1' -d '{"jsonrpc":"2.0","id":1,"method":"call","params":["","model","get_cells_info"]}'". As a return value, expect a json formatted string which needs to be parsed into an object. AI! 
+fn main() {
+  // Statements here are executed when the compiled binary is called.
 
-async fn fetch_data() -> Result<Value, Box<dyn Error>> {
-    let client = reqwest::Client::new();
-    let mut headers = HeaderMap::new();
-    headers.insert("glinet", HeaderValue::from_static("1"));
-
-    let res = client
-        .post("http://127.0.0.1/rpc")
-        .headers(headers)
-        .body(r#"{"jsonrpc":"2.0","id":1,"method":"call","params":["","model","get_cells_info"]}"#)
-        .send()
-        .await?;
-
-    let json: Value = res.json().await?;
-    Ok(json)
-}
-
-#[tokio::main]
-async fn main() {
-    match fetch_data().await {
-        Ok(json) => println!("Response JSON: {:?}", json),
-        Err(e) => eprintln!("Error: {}", e),
-    }
+  // Print text to the console.
+  println!("Hello World!");
 }
