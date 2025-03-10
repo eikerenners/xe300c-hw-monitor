@@ -19,10 +19,30 @@ type glErrorObject struct {
 	Error   glError `json:"error"`
 }
 
-func main() {
-	// add code to open a logfile called status.logs, continuously get the updated status every minute (getStatus) and write information like the temperature and battery level (chargePercent) to the logfile. When exited, close the logfile. AI!
+import (
+	"log"
+	"os"
+	"time"
+)
 
-	status, err := getStatus()
+func main() {
+	logFile, err := os.OpenFile("status.logs", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %v", err)
+	}
+	defer logFile.Close()
+
+	logger := log.New(logFile, "", log.LstdFlags)
+
+	for {
+		status, err := getStatus()
+		if err != nil {
+			logger.Printf("Error getting status: %v", err)
+		} else {
+			logger.Printf("Temperature: %.2f, Battery Level: %d%%", status.Result.System.MCU.Temperature, status.Result.System.MCU.ChargePercent)
+		}
+		time.Sleep(1 * time.Minute)
+	}
 
 }
 
