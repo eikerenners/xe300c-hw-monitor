@@ -87,9 +87,23 @@ GNU/Linux
 ```
 
 To build app for wrt xe300c (mips architecture)
-```
+```sh
 GOOS=linux GOARCH=mips GOMIPS=softfloat go build -o xe300c-hw-monitor 
 ```
 
+## install as service
+SSH into the router, install SCP, copy files via SCP, create new system service, start up manually, run for a while, stop. 
+Remember, the router has VERY limited resources. Don't run this service too long and clutter the internal memory. 
 
-## Copyleft 
+```sh
+ssh root@192.168.8.1
+
+opkg update
+opkg install openssh-sftp-server
+exit
+
+GOOS=linux GOARCH=mips GOMIPS=softfloat go build -o xe300c-hw-monitor
+scp -r ./xe300c-hw-monitor root@192.168.8.1:/tmp
+scp -r ./xe300c-hw-monitor root@192.168.8.1:/tmp
+
+```
