@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,17 +9,6 @@ import (
 	"os"
 	"time"
 )
-
-type glError struct {
-	Error string `json:"error"`
-	Code  int    `json:"code"`
-}
-
-type glErrorObject struct {
-	Name    int     `json:"name"`
-	Jsonrpc string  `json:"jsonrpc"`
-	Error   glError `json:"error"`
-}
 
 func main() {
 	logFile, err := os.OpenFile("status.logs", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -64,6 +52,7 @@ func getStatus() (*glStatusResponse, error) {
 
 	if statusCode >= 200 && statusCode <= 299 {
 		// Here we can now parse the returned value...
+
 		// First, let's check if there's an error present. The RPC call always returns 200.
 		// Even if for example authorization failed, it will return 200 with error messages.
 		err = parseError(body)
@@ -72,7 +61,7 @@ func getStatus() (*glStatusResponse, error) {
 			return nil, err
 		}
 
-		// Okay, no successful call and no error messages. Let's parse the response into an object.
+		// Call was successful and no error messages in the returned body. Let's parse the response into an object.
 		status, err := ParseGetStatusMsg(string(body))
 		if err != nil {
 			fmt.Println("HTTP request successful but error parsing message: ", err)
@@ -88,6 +77,9 @@ func getStatus() (*glStatusResponse, error) {
 
 func mcuHttpQuery(url string, commands []string) ([]byte, int, error) {
 
+	// first, construct the http request. It's fairly simple, they always follow this pattern:
+	// '{"jsonrpc":"2.0","id":1,"method":"call","params":["<token>","<param 1>","<param 2>",...,"<param N>"]}'
+	// Since this is sent from the host system (localhost), a security token is not needed.
 	req, err := makeQuery(url, commands)
 	if err != nil {
 		return nil, -1, err
@@ -125,16 +117,4 @@ func makeQuery(url string, commands []string) (*http.Request, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	return req, err
-}
-
-func parseError(body []byte) error {
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return err
-	}
-
-	if error, exists := result["error"]; exists && error.(map[string]interface{})["code"].(float64) < float64(0) {
-		return fmt.Errorf(fmt.Sprintf("%v", result["error"]))
-	}
-	return nil
 }
