@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 type glError struct {
@@ -18,12 +21,6 @@ type glErrorObject struct {
 	Jsonrpc string  `json:"jsonrpc"`
 	Error   glError `json:"error"`
 }
-
-import (
-	"log"
-	"os"
-	"time"
-)
 
 func main() {
 	logFile, err := os.OpenFile("status.logs", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -39,7 +36,14 @@ func main() {
 		if err != nil {
 			logger.Printf("Error getting status: %v", err)
 		} else {
-			logger.Printf("Temperature: %.2f, Battery Level: %d%%", status.Result.System.MCU.Temperature, status.Result.System.MCU.ChargePercent)
+			logger.Printf("Temperature: %.2f, Battery Level: %d%%, Load: %.2f",
+				status.Result.System.MCU.Temperature,
+				status.Result.System.MCU.ChargePercent,
+				status.Result.System.LoadAverage[0])
+			fmt.Printf("Temperature: %.2f, Battery Level: %d%%, Load: %.2f\n",
+				status.Result.System.MCU.Temperature,
+				status.Result.System.MCU.ChargePercent,
+				status.Result.System.LoadAverage[0])
 		}
 		time.Sleep(1 * time.Minute)
 	}
@@ -74,10 +78,6 @@ func getStatus() (*glStatusResponse, error) {
 			fmt.Println("HTTP request successful but error parsing message: ", err)
 			return nil, err
 		}
-
-		// For now, we only print. This will be later used somewhere.
-		fmt.Println("Battery: ", status.Result.System.MCU.ChargePercent)
-		fmt.Println("Temperature: ", status.Result.System.MCU.Temperature)
 		return status, nil
 
 	} else {
